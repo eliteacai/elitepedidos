@@ -1175,7 +1175,7 @@ const PDVSalesScreen: React.FC<PDVSalesScreenProps> = ({ scaleHook, operator, st
                     <div className="mt-1 p-1 bg-blue-50 border border-blue-200 rounded text-xs">
                       <div className="font-bold">DADOS PIX:</div>
                       <div>Chave: 85989041010</div>
-                      <div>Nome: Grupo Elite</div>
+                      <div>Nome: Amanda Suyelen da Sosta Pereira</div>
                       <div>Valor: {formatPrice(getTotal())}</div>
                     </div>
                   )}
