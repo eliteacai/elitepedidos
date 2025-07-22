@@ -1207,8 +1207,8 @@ const PDVSalesScreen: React.FC<PDVSalesScreenProps> = ({ scaleHook, operator, st
           {/* Estilos específicos para impressão térmica */}
           <style jsx>{`
             @media print {
-              @page {
-                size: 80mm auto;
+              /* Esconder ABSOLUTAMENTE todo o conteúdo da página */
+              body * {
                 margin: 0;
                 padding: 0;
               }
@@ -1216,16 +1216,18 @@ const PDVSalesScreen: React.FC<PDVSalesScreenProps> = ({ scaleHook, operator, st
               body {
                 margin: 0;
                 padding: 0;
+                visibility: hidden !important;
                 background: white;
                 font-family: 'Courier New', monospace;
-                font-size: 1.6px;
-                line-height: 1.1;
-                color: black;
-                overflow: visible;
-              }
-              
-              .print\\:hidden {
+              /* Remover overlay do modal */
+              .thermal-receipt-container {
                 display: none !important;
+                visibility: hidden !important;
+                width: 100% !important;
+                height: auto !important;
+                max-width: none !important;
+                max-height: none !important;
+                overflow: visible !important;
               }
               
               .thermal-receipt {
@@ -1243,42 +1245,35 @@ const PDVSalesScreen: React.FC<PDVSalesScreenProps> = ({ scaleHook, operator, st
                 transform: scale(0.9);
                 transform-origin: top left;
                 page-break-inside: avoid;
-              }
-              
+              /* Mostrar apenas o container de impressão e seus filhos */
+              .thermal-receipt-container,
+                visibility: visible !important;
+              .thermal-receipt-container * {
               .fixed {
-                position: static !important;
-              }
-              
-              .bg-black\\/50 {
-                background: transparent !important;
-              }
-              
-              .rounded-2xl {
-                border-radius: 0 !important;
-              }
-              
-              .max-w-sm {
-                max-width: none !important;
-              }
-              
-              .w-full {
-                width: 75mm !important;
-              }
-              
-              .max-h-\\[90vh\\] {
-                max-height: none !important;
-              }
-              
-              .overflow-hidden {
-                overflow: visible !important;
-              }
-              
               /* Força cores para impressão térmica */
-              * {
+              .thermal-receipt * {
                 color: black !important;
                 background: white !important;
                 border-color: black !important;
               }
+              /* Esconder especificamente elementos problemáticos */
+              header, nav, main, footer,
+              .bg-gray-50, .max-w-7xl, .px-4, .py-6,
+              h1, h2, h3, h4, h5, h6,
+              .text-2xl, .font-bold, .text-gray-800 {
+                display: none !important;
+                visibility: hidden !important;
+              }
+              
+              /* Garantir que apenas o recibo seja visível */
+              .thermal-receipt-container h1,
+              .thermal-receipt-container h2,
+              .thermal-receipt-container h3,
+              .thermal-receipt-container * {
+                display: block !important;
+                visibility: visible !important;
+              }
+              
               
               .bg-gray-100 {
                 background: #f0f0f0 !important;

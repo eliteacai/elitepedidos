@@ -74,16 +74,37 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
   // Aplicar configurações de impressora ao estilo
   const printerStyle = `
     @media print {
-      /* Esconder todo o conteúdo da página */
-      body > * {
+      /* Esconder ABSOLUTAMENTE todo o conteúdo da página */
+      body * {
         display: none !important;
+        visibility: hidden !important;
       }
       
-      /* Mostrar apenas o modal de impressão */
-      .thermal-receipt-container {
+      /* Mostrar apenas o container de impressão e seus filhos */
+      .thermal-receipt-container,
+      .thermal-receipt-container * {
         display: block !important;
+        visibility: visible !important;
         position: static !important;
         background: white !important;
+      }
+      
+      /* Esconder especificamente elementos problemáticos */
+      header, nav, main, footer,
+      .bg-gray-50, .max-w-7xl, .px-4, .py-6,
+      h1, h2, h3, h4, h5, h6,
+      .text-2xl, .font-bold, .text-gray-800 {
+        display: none !important;
+        visibility: hidden !important;
+      }
+      
+      /* Garantir que apenas o recibo seja visível */
+      .thermal-receipt-container h1,
+      .thermal-receipt-container h2,
+      .thermal-receipt-container h3,
+      .thermal-receipt-container * {
+        display: block !important;
+        visibility: visible !important;
       }
       
       @page {
@@ -103,21 +124,23 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
         overflow: visible;
+        overflow: visible;
       }
       
       .print\\:hidden {
         display: none !important;
+        visibility: hidden !important;
       }
       
-      /* Esconder elementos específicos da página */
-      header, nav, .bg-gray-50, .max-w-7xl, .px-4, .py-6 {
-        display: none !important;
-      }
-      
-      /* Esconder overlay do modal */
-      .fixed.inset-0.bg-black\\/50 {
+      /* Remover overlay do modal */
+      .thermal-receipt-container {
         background: transparent !important;
         position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        max-width: none !important;
+        max-height: none !important;
+        overflow: visible !important;
       }
       
       .thermal-receipt {
@@ -136,39 +159,12 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
         transform-origin: top left;
         position: static !important;
         display: block !important;
+        visibility: visible !important;
         page-break-inside: avoid;
       }
       
-      .fixed {
-        position: static !important;
-      }
-      
-      .bg-black\\/50 {
-        background: transparent !important;
-      }
-      
-      .rounded-lg {
-        border-radius: 0 !important;
-      }
-      
-      .max-w-sm {
-        max-width: none !important;
-      }
-      
-      .w-full {
-        width: 100% !important;
-      }
-      
-      .max-h-\\[90vh\\] {
-        max-height: none !important;
-      }
-      
-      .overflow-hidden {
-        overflow: visible !important;
-      }
-      
       /* Força cores para impressão térmica */
-      * {
+      .thermal-receipt * {
         color: black !important;
         background: white !important;
         border-color: black !important;

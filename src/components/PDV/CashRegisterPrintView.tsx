@@ -71,24 +71,27 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
   // Aplicar configurações de impressora ao estilo
   const printerStyle = `
     @media print {
-      @page {
-        size: ${printerSettings.paper_width} auto;
+      /* Esconder ABSOLUTAMENTE todo o conteúdo da página */
+      body * {
         margin: 0;
         padding: 0;
+        overflow: visible;
       }
       
       body {
         margin: 0;
+        visibility: hidden !important;
         padding: 0;
         background: white;
-        font-family: 'Courier New', monospace;
-        font-size: ${printerSettings.font_size}px;
-        line-height: 1.2;
-        color: black;
-      }
-      
-      .print\\:hidden {
+      /* Remover overlay do modal */
+      .thermal-receipt-container {
         display: none !important;
+        visibility: hidden !important;
+        width: 100% !important;
+        height: auto !important;
+        max-width: none !important;
+        max-height: none !important;
+        overflow: visible !important;
       }
       
       .thermal-receipt {
@@ -105,42 +108,35 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
         max-height: none;
         transform: scale(${printerSettings.scale});
         transform-origin: top left;
-      }
-      
+      /* Mostrar apenas o container de impressão e seus filhos */
+      .thermal-receipt-container,
+        visibility: visible !important;
+      .thermal-receipt-container * {
       .fixed {
-        position: static !important;
-      }
-      
-      .bg-black\\/50 {
-        background: transparent !important;
-      }
-      
-      .rounded-lg {
-        border-radius: 0 !important;
-      }
-      
-      .max-w-sm {
-        max-width: none !important;
-      }
-      
-      .w-full {
-        width: ${printerSettings.paper_width === 'A4' ? '210mm' : printerSettings.paper_width} !important;
-      }
-      
-      .max-h-\\[90vh\\] {
-        max-height: none !important;
-      }
-      
-      .overflow-hidden {
-        overflow: visible !important;
-      }
-      
       /* Força cores para impressão térmica */
-      * {
+      .thermal-receipt * {
         color: black !important;
         background: white !important;
         border-color: black !important;
       }
+      /* Esconder especificamente elementos problemáticos */
+      header, nav, main, footer,
+      .bg-gray-50, .max-w-7xl, .px-4, .py-6,
+      h1, h2, h3, h4, h5, h6,
+      .text-2xl, .font-bold, .text-gray-800 {
+        display: none !important;
+        visibility: hidden !important;
+      }
+      
+      /* Garantir que apenas o recibo seja visível */
+      .thermal-receipt-container h1,
+      .thermal-receipt-container h2,
+      .thermal-receipt-container h3,
+      .thermal-receipt-container * {
+        display: block !important;
+        visibility: visible !important;
+      }
+      
       
       .bg-gray-100 {
         background: #f0f0f0 !important;
