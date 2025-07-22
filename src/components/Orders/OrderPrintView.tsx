@@ -75,7 +75,7 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
   const printerStyle = `
     @media print {
       @page {
-        size: ${printerSettings.paper_width} auto;
+        size: ${printerSettings.paper_width === 'A4' ? 'A4' : '80mm'} auto;
         margin: 0;
         padding: 0;
       }
@@ -85,9 +85,10 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
         padding: 0;
         background: white;
         font-family: 'Courier New', monospace;
-        font-size: ${printerSettings.font_size}px;
+        font-size: ${Math.max(printerSettings.font_size * 0.8, 1.5)}px;
         line-height: 1.2;
         color: black;
+        overflow: visible;
       }
       
       .print\\:hidden {
@@ -95,19 +96,20 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
       }
       
       .thermal-receipt {
-        width: ${printerSettings.paper_width === 'A4' ? '210mm' : printerSettings.paper_width};
-        max-width: ${printerSettings.paper_width === 'A4' ? '210mm' : printerSettings.paper_width};
+        width: ${printerSettings.paper_width === 'A4' ? '190mm' : '75mm'};
+        max-width: ${printerSettings.paper_width === 'A4' ? '190mm' : '75mm'};
         margin: 0;
-        padding: ${printerSettings.margin_top}mm ${printerSettings.margin_left}mm ${printerSettings.margin_bottom}mm;
+        padding: ${Math.max(printerSettings.margin_top * 0.5, 0.5)}mm ${Math.max(printerSettings.margin_left * 0.5, 0.5)}mm ${Math.max(printerSettings.margin_bottom * 0.5, 0.5)}mm;
         background: white;
         color: black;
         font-family: 'Courier New', monospace;
-        font-size: ${printerSettings.font_size}px;
-        line-height: 1.3;
+        font-size: ${Math.max(printerSettings.font_size * 0.8, 1.5)}px;
+        line-height: 1.1;
         overflow: visible;
         max-height: none;
-        transform: scale(${printerSettings.scale});
+        transform: scale(${Math.min(printerSettings.scale * 0.9, 0.9)});
         transform-origin: top left;
+        page-break-inside: avoid;
       }
       
       .fixed {
@@ -127,7 +129,7 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
       }
       
       .w-full {
-        width: ${printerSettings.paper_width === 'A4' ? '210mm' : printerSettings.paper_width} !important;
+        width: 100% !important;
       }
       
       .max-h-\\[90vh\\] {
@@ -168,17 +170,17 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
       
       /* Otimizações para impressão térmica */
       .thermal-receipt h1 {
-        font-size: ${printerSettings.font_size * 7}px !important;
+        font-size: ${Math.max(printerSettings.font_size * 4, 8)}px !important;
         font-weight: bold !important;
         margin: 0 !important;
       }
       
       .thermal-receipt .text-xs {
-        font-size: ${printerSettings.font_size * 5}px !important;
+        font-size: ${Math.max(printerSettings.font_size * 3, 6)}px !important;
       }
       
       .thermal-receipt .text-lg {
-        font-size: ${printerSettings.font_size * 6.5}px !important;
+        font-size: ${Math.max(printerSettings.font_size * 4, 8)}px !important;
       }
       
       .thermal-receipt .font-bold {
@@ -191,31 +193,31 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
       
       /* Espaçamento otimizado */
       .thermal-receipt .mb-1 {
-        margin-bottom: 1mm !important;
+        margin-bottom: 0.5mm !important;
       }
       
       .thermal-receipt .mb-2 {
-        margin-bottom: 2mm !important;
+        margin-bottom: 1mm !important;
       }
       
       .thermal-receipt .mb-3 {
-        margin-bottom: 3mm !important;
+        margin-bottom: 1.5mm !important;
       }
       
       .thermal-receipt .pb-2 {
-        padding-bottom: 2mm !important;
+        padding-bottom: 1mm !important;
       }
       
       .thermal-receipt .pt-2 {
-        padding-top: 2mm !important;
+        padding-top: 1mm !important;
       }
       
       .thermal-receipt .p-1 {
-        padding: 1mm !important;
+        padding: 0.5mm !important;
       }
       
       .thermal-receipt .p-2 {
-        padding: 2mm !important;
+        padding: 1mm !important;
       }
       
       /* Bordas para impressão térmica */
@@ -251,12 +253,35 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
       .thermal-receipt .break-all {
         word-break: break-all !important;
       }
+      
+      /* Evitar quebras de página */
+      .thermal-receipt * {
+        page-break-inside: avoid !important;
+      }
+      
+      .thermal-receipt .no-break {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      
+      /* Compactar espaçamentos */
+      .thermal-receipt .space-y-1 > * + * {
+        margin-top: 0.5mm !important;
+      }
+      
+      .thermal-receipt .space-y-2 > * + * {
+        margin-top: 1mm !important;
+      }
+      
+      .thermal-receipt .space-y-3 > * + * {
+        margin-top: 1.5mm !important;
+      }
     }
     
     /* Estilos para visualização na tela */
     .thermal-receipt {
       font-family: 'Courier New', monospace;
-      max-width: 300px;
+      max-width: 280px;
       background: white;
       border: 1px solid #ddd;
     }
@@ -296,15 +321,15 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
 
         {/* Conteúdo para impressão térmica */}
         <div className="thermal-receipt overflow-y-auto max-h-[calc(90vh-120px)] print:overflow-visible print:max-h-none">
-          <div className="p-2 print:p-0">
+          <div className="p-2 print:p-0 no-break">
             {/* Cabeçalho */}
-            <div className="text-center mb-3 pb-2 border-b border-dashed border-gray-400">
+            <div className="text-center mb-2 pb-1 border-b border-dashed border-gray-400 no-break">
               <div className="mb-2">
                 <h1 className="text-lg font-bold">ELITE AÇAÍ</h1>
                 <p className="text-xs">Delivery Premium</p>
               </div>
               
-              <div className="text-xs space-y-1">
+              <div className="text-xs space-y-0">
                 <p>Rua Dois, 2130-A</p>
                 <p>Residencial 1 - Cágado</p>
                 <p>Tel: (85) 98904-1010</p>
@@ -313,12 +338,12 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
             </div>
 
             {/* Informações do Pedido */}
-            <div className="mb-3 text-xs">
+            <div className="mb-2 text-xs no-break">
               <div className="text-center font-bold mb-2">
                 === PEDIDO DE DELIVERY ===
               </div>
               
-              <div className="space-y-1">
+              <div className="space-y-0">
                 <div className="flex justify-between">
                   <span>Pedido:</span>
                   <span>#{order.id.slice(-8)}</span>
@@ -339,9 +364,9 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
             </div>
 
             {/* Dados do Cliente */}
-            <div className="mb-3 pb-2 border-b border-dashed border-gray-400">
+            <div className="mb-2 pb-1 border-b border-dashed border-gray-400 no-break">
               <div className="font-bold text-xs mb-1">DADOS DO CLIENTE:</div>
-              <div className="text-xs space-y-1">
+              <div className="text-xs space-y-0">
                 <div>
                   <span className="font-medium">Nome:</span>
                   <div>{order.customer_name}</div>
@@ -362,11 +387,11 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
             </div>
 
             {/* Itens do Pedido */}
-            <div className="mb-3">
+            <div className="mb-2 no-break">
               <div className="font-bold text-xs mb-2">ITENS DO PEDIDO:</div>
               
               {order.items.map((item, index) => (
-                <div key={index} className="mb-3 pb-2 border-b border-dotted border-gray-300">
+                <div key={index} className="mb-2 pb-1 border-b border-dotted border-gray-300 no-break">
                   <div className="text-xs">
                     <div className="font-medium mb-1">
                       {index + 1}. {item.product_name}
@@ -380,7 +405,7 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
 
                     {/* Complementos */}
                     {item.complements.length > 0 && (
-                      <div className="ml-2 mt-1">
+                      <div className="ml-2 mt-0">
                         <div className="font-medium">Complementos:</div>
                         {item.complements.map((comp, idx) => (
                           <div key={idx} className="flex justify-between">
@@ -393,13 +418,13 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
 
                     {/* Observações */}
                     {item.observations && (
-                      <div className="ml-2 mt-1 p-1 bg-gray-100 rounded text-xs">
+                      <div className="ml-2 mt-0 p-1 bg-gray-100 rounded text-xs">
                         <div className="font-medium">Obs:</div>
                         <div className="italic">"{item.observations}"</div>
                       </div>
                     )}
 
-                    <div className="flex justify-between mt-2 font-medium">
+                    <div className="flex justify-between mt-1 font-medium">
                       <span>{item.quantity}x {formatPrice(item.unit_price)}</span>
                       <span>{formatPrice(item.total_price)}</span>
                     </div>
@@ -409,9 +434,9 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
             </div>
 
             {/* Resumo Financeiro */}
-            <div className="mb-3 pb-2 border-b border-dashed border-gray-400">
+            <div className="mb-2 pb-1 border-b border-dashed border-gray-400 no-break">
               <div className="font-bold text-xs mb-2">RESUMO:</div>
-              <div className="text-xs space-y-1">
+              <div className="text-xs space-y-0">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
                   <span>{formatPrice(order.total_price - (order.delivery_fee || 0))}</span>
@@ -422,7 +447,7 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
                     <span>{formatPrice(order.delivery_fee)}</span>
                   </div>
                 )}
-                <div className="border-t border-gray-300 pt-1 mt-1">
+                <div className="border-t border-gray-300 pt-0 mt-0">
                   <div className="flex justify-between font-bold">
                     <span>TOTAL:</span>
                     <span>{formatPrice(order.total_price)}</span>
@@ -432,17 +457,17 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
             </div>
 
             {/* Forma de Pagamento */}
-            <div className="mb-3 pb-2 border-b border-dashed border-gray-400">
+            <div className="mb-2 pb-1 border-b border-dashed border-gray-400 no-break">
               <div className="font-bold text-xs mb-1">PAGAMENTO:</div>
               <div className="text-xs">
                 <div>{getPaymentMethodLabel(order.payment_method)}</div>
                 {order.payment_method === 'pix' && (
-                  <div className="mt-1 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+                  <div className="mt-0 p-1 bg-blue-50 border border-blue-200 rounded text-xs">
                     <div className="font-bold">DADOS PIX:</div>
                     <div>Chave: 85989041010</div>
                     <div>Nome: Grupo Elite</div>
                     <div>Valor: {formatPrice(order.total_price)}</div>
-                    <div className="mt-1 font-bold text-red-600">
+                    <div className="mt-0 font-bold text-red-600">
                       ⚠️ AGUARDANDO COMPROVANTE
                     </div>
                   </div>
@@ -454,9 +479,9 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
             </div>
 
             {/* Instruções */}
-            <div className="mb-3 text-xs">
+            <div className="mb-2 text-xs no-break">
               <div className="font-bold mb-1">INSTRUÇÕES:</div>
-              <div className="space-y-1">
+              <div className="space-y-0">
                 <div>• Confira todos os itens</div>
                 <div>• Tempo estimado: {order.estimated_delivery_minutes || 35}min</div>
                 <div>• Dúvidas: (85) 98904-1010</div>
@@ -465,27 +490,27 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
             </div>
 
             {/* QR Code ou Link de Acompanhamento */}
-            <div className="mb-3 text-center text-xs">
+            <div className="mb-2 text-center text-xs no-break">
               <div className="font-bold mb-1">ACOMPANHE SEU PEDIDO:</div>
-              <div className="break-all bg-gray-100 p-2 rounded">
+              <div className="break-all bg-gray-100 p-1 rounded">
                 {window.location.origin}/pedido/{order.id}
               </div>
             </div>
 
             {/* Rodapé */}
-            <div className="text-center text-xs border-t border-dashed border-gray-400 pt-2">
+            <div className="text-center text-xs border-t border-dashed border-gray-400 pt-1 no-break">
               <div className="mb-2">
                 <div className="font-bold">Obrigado pela preferência!</div>
                 <div>Avalie nosso atendimento!</div>
               </div>
               
-              <div className="space-y-1">
+              <div className="space-y-0">
                 <div>@eliteacai</div>
                 <div>facebook.com/eliteacai</div>
                 <div>⭐⭐⭐⭐⭐ Google & iFood</div>
               </div>
 
-              <div className="mt-2 pt-2 border-t border-gray-300 text-xs">
+              <div className="mt-1 pt-1 border-t border-gray-300 text-xs">
                 <div>Elite Açaí - CNPJ: {storeSettings?.cnpj || '00.000.000/0001-00'}</div>
                 <div>Impresso: {new Date().toLocaleString('pt-BR')}</div>
                 <div>Este não é um documento fiscal</div>
