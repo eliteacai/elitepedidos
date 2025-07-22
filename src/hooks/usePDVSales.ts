@@ -220,7 +220,7 @@ export const usePDVSales = () => {
         .from('pdv_sales')
         .select(`
           *,
-          operator:pdv_operators(name),
+          operator:pdv_operators!pdv_sales_operator_id_fkey(name),
           items:pdv_sale_items(*)
         `)
         .order('created_at', { ascending: false });
