@@ -71,24 +71,57 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
   // Aplicar configurações de impressora ao estilo
   const printerStyle = `
     @media print {
-      /* Esconder ABSOLUTAMENTE todo o conteúdo da página */
-      body * {
+      @page {
+        size: ${printerSettings.paper_width === 'A4' ? 'A4' : printerSettings.paper_width};
         margin: 0;
         padding: 0;
-        overflow: visible;
       }
       
       body {
         margin: 0;
-        visibility: hidden !important;
         padding: 0;
         background: white;
-      /* Remover overlay do modal */
-      .thermal-receipt-container {
+        font-family: 'Courier New', monospace;
+        font-size: ${printerSettings.font_size}px;
+        line-height: 1.2;
+        color: black;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      
+      /* Esconder elementos da página principal */
+      body > div:not(.thermal-receipt-container),
+      header, nav, main, footer,
+      .bg-gray-50, .max-w-7xl, .px-4, .py-6 {
         display: none !important;
-        visibility: hidden !important;
+      }
+      
+      /* Esconder títulos da página principal */
+      body > * h1:not(.thermal-receipt-container h1),
+      body > * h2:not(.thermal-receipt-container h2) {
+        display: none !important;
+      }
+      
+      .print\\:hidden {
+        display: none !important;
+      }
+      
+      /* Container do modal de impressão */
+      .thermal-receipt-container {
+        position: static !important;
+        background: white !important;
+        display: block !important;
         width: 100% !important;
         height: auto !important;
+        max-width: none !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      
+      /* Modal interno */
+      .thermal-receipt-container > div {
+        background: white !important;
+        border-radius: 0 !important;
         max-width: none !important;
         max-height: none !important;
         overflow: visible !important;
@@ -108,35 +141,15 @@ const CashRegisterPrintView: React.FC<CashRegisterPrintViewProps> = ({
         max-height: none;
         transform: scale(${printerSettings.scale});
         transform-origin: top left;
-      /* Mostrar apenas o container de impressão e seus filhos */
-      .thermal-receipt-container,
-        visibility: visible !important;
-      .thermal-receipt-container * {
-      .fixed {
+        display: block !important;
+      }
+      
       /* Força cores para impressão térmica */
       .thermal-receipt * {
         color: black !important;
         background: white !important;
         border-color: black !important;
       }
-      /* Esconder especificamente elementos problemáticos */
-      header, nav, main, footer,
-      .bg-gray-50, .max-w-7xl, .px-4, .py-6,
-      h1, h2, h3, h4, h5, h6,
-      .text-2xl, .font-bold, .text-gray-800 {
-        display: none !important;
-        visibility: hidden !important;
-      }
-      
-      /* Garantir que apenas o recibo seja visível */
-      .thermal-receipt-container h1,
-      .thermal-receipt-container h2,
-      .thermal-receipt-container h3,
-      .thermal-receipt-container * {
-        display: block !important;
-        visibility: visible !important;
-      }
-      
       
       .bg-gray-100 {
         background: #f0f0f0 !important;

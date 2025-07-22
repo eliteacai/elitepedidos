@@ -93,21 +93,6 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
       header, nav, main, footer,
       .bg-gray-50, .max-w-7xl, .px-4, .py-6,
       h1, h2, h3, h4, h5, h6,
-      .text-2xl, .font-bold, .text-gray-800 {
-        display: none !important;
-        visibility: hidden !important;
-      }
-      
-      /* Garantir que apenas o recibo seja visível */
-      .thermal-receipt-container h1,
-      .thermal-receipt-container h2,
-      .thermal-receipt-container h3,
-      .thermal-receipt-container * {
-        display: block !important;
-        visibility: visible !important;
-      }
-      
-      @page {
         size: ${printerSettings.paper_width === 'A4' ? 'A4' : '80mm'} auto;
         margin: 0;
         padding: 0;
@@ -124,29 +109,33 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
         overflow: visible;
-        overflow: visible;
       }
       
-      .print\\:hidden {
+      /* Esconder elementos da página principal */
+      body > div:not(.thermal-receipt-container),
+      header, nav, main, footer,
+      .bg-gray-50, .max-w-7xl, .px-4, .py-6 {
         display: none !important;
-        visibility: hidden !important;
       }
       
-      /* Remover overlay do modal */
+      /* Esconder títulos da página principal */
+      body > * h1:not(.thermal-receipt-container h1),
+        display: none !important;
+      }
+      /* Container do modal de impressão */
       .thermal-receipt-container {
-        background: transparent !important;
         position: static !important;
-        width: 100% !important;
-        height: auto !important;
+        background: white !important;
+      /* Modal interno */
+      .thermal-receipt-container > div {
+        background: white !important;
+        border-radius: 0 !important;
         max-width: none !important;
         max-height: none !important;
         overflow: visible !important;
       }
       
-      .thermal-receipt {
-        width: ${printerSettings.paper_width === 'A4' ? '190mm' : '75mm'};
-        max-width: ${printerSettings.paper_width === 'A4' ? '190mm' : '75mm'};
-        margin: 0;
+      /* Remover overlay do modal */
         padding: ${Math.max(printerSettings.margin_top * 0.5, 0.5)}mm ${Math.max(printerSettings.margin_left * 0.5, 0.5)}mm ${Math.max(printerSettings.margin_bottom * 0.5, 0.5)}mm;
         background: white;
         color: black;
@@ -161,9 +150,7 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
         display: block !important;
         visibility: visible !important;
         page-break-inside: avoid;
-      }
       
-      /* Força cores para impressão térmica */
       .thermal-receipt * {
         color: black !important;
         background: white !important;
