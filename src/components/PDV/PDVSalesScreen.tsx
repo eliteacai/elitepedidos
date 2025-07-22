@@ -4,7 +4,7 @@ import { usePDV } from '../../hooks/usePDV';
 import { usePDVSales } from '../../hooks/usePDVSales';
 import { formatPrice } from '../../utils/formatters';
 import { PDVProduct, PDVSaleItem, PDVPaymentType } from '../../types/pdv';
-import { ScaleWeightModal } from './ScaleWeightModal';
+import ScaleWeightModal from './ScaleWeightModal';
 
 interface PDVSalesScreenProps {
   onBack: () => void;
