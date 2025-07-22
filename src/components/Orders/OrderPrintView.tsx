@@ -74,6 +74,18 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
   // Aplicar configurações de impressora ao estilo
   const printerStyle = `
     @media print {
+      /* Esconder todo o conteúdo da página */
+      body > * {
+        display: none !important;
+      }
+      
+      /* Mostrar apenas o modal de impressão */
+      .thermal-receipt-container {
+        display: block !important;
+        position: static !important;
+        background: white !important;
+      }
+      
       @page {
         size: ${printerSettings.paper_width === 'A4' ? 'A4' : '80mm'} auto;
         margin: 0;
@@ -88,11 +100,24 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
         font-size: ${Math.max(printerSettings.font_size * 0.8, 1.5)}px;
         line-height: 1.2;
         color: black;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
         overflow: visible;
       }
       
       .print\\:hidden {
         display: none !important;
+      }
+      
+      /* Esconder elementos específicos da página */
+      header, nav, .bg-gray-50, .max-w-7xl, .px-4, .py-6 {
+        display: none !important;
+      }
+      
+      /* Esconder overlay do modal */
+      .fixed.inset-0.bg-black\\/50 {
+        background: transparent !important;
+        position: static !important;
       }
       
       .thermal-receipt {
@@ -109,6 +134,8 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
         max-height: none;
         transform: scale(${Math.min(printerSettings.scale * 0.9, 0.9)});
         transform-origin: top left;
+        position: static !important;
+        display: block !important;
         page-break-inside: avoid;
       }
       
@@ -288,8 +315,8 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
   `;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-sm w-full max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 thermal-receipt-container">
+      <div className="bg-white rounded-lg max-w-sm w-full max-h-[90vh] overflow-hidden print:rounded-none print:max-w-none print:max-h-none print:overflow-visible">
         {/* Controles de impressão - não aparecem na impressão */}
         <div className="p-4 border-b border-gray-200 print:hidden">
           <div className="flex items-center justify-between">
@@ -320,7 +347,7 @@ const OrderPrintView: React.FC<OrderPrintViewProps> = ({ order, storeSettings, o
         </div>
 
         {/* Conteúdo para impressão térmica */}
-        <div className="thermal-receipt overflow-y-auto max-h-[calc(90vh-120px)] print:overflow-visible print:max-h-none">
+        <div className="thermal-receipt overflow-y-auto max-h-[calc(90vh-120px)] print:overflow-visible print:max-h-none print:block">
           <div className="p-2 print:p-0 no-break">
             {/* Cabeçalho */}
             <div className="text-center mb-2 pb-1 border-b border-dashed border-gray-400 no-break">
