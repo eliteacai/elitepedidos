@@ -41,7 +41,7 @@ const PDVSalesScreen: React.FC<PDVSalesScreenProps> = ({ scaleHook, operator, st
   const [printerSettings, setPrinterSettings] = useState({
     paper_width: '80mm',
     page_size: 300,
-    font_size: 2,
+    font_size: 14,
     delivery_font_size: 14,
     scale: 1,
     margin_left: 0,
