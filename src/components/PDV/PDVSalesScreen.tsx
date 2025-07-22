@@ -41,7 +41,7 @@ const PDVSalesScreen: React.FC<PDVSalesScreenProps> = ({ scaleHook, operator, st
   const [printerSettings, setPrinterSettings] = useState({
     paper_width: '80mm',
     page_size: 300,
-    font_size: 14,
+    font_size: 2,
     delivery_font_size: 14,
     scale: 1,
     margin_left: 0,
@@ -1066,7 +1066,7 @@ const PDVSalesScreen: React.FC<PDVSalesScreenProps> = ({ scaleHook, operator, st
                 <div className="text-center mb-2 pb-1 border-b border-dashed border-gray-400 no-break">
                   <div className="mb-1">
                     <h1 className="text-lg font-bold">ELITE AÇAÍ</h1>
-                    <p className="text-xs">CNPJ: {settings?.cnpj || '00.000.000/0001-00'}</p>
+                    <p className="text-xs">CNPJ: {storeSettings?.cnpj || '00.000.000/0001-00'}</p>
                   </div>
                   
                   <div className="text-xs space-y-0">
@@ -1195,7 +1195,7 @@ const PDVSalesScreen: React.FC<PDVSalesScreenProps> = ({ scaleHook, operator, st
                   </div>
 
                   <div className="mt-1 pt-1 border-t border-gray-300 text-xs">
-                    <div>Elite Açaí - CNPJ: {settings?.cnpj || '00.000.000/0001-00'}</div>
+                    <div>Elite Açaí - CNPJ: {storeSettings?.cnpj || '00.000.000/0001-00'}</div>
                     <div>Impresso: {new Date().toLocaleString('pt-BR')}</div>
                     <div>Este não é um documento fiscal</div>
                   </div>
@@ -1411,9 +1411,6 @@ const PDVSalesScreen: React.FC<PDVSalesScreenProps> = ({ scaleHook, operator, st
               border: 1px solid #ddd;
             }
           `}</style>
-        </div>
-      )}
-          </div>
         </div>
       )}
       
