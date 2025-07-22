@@ -1029,93 +1029,390 @@ const PDVSalesScreen: React.FC<PDVSalesScreenProps> = ({ scaleHook, operator, st
       {/* Modal de Impressão */}
       {showPrintPreview && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-800">Imprimir Comprovante</h2>
-              <button
-                onClick={() => setShowPrintPreview(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X size={20} />
-              </button>
+          <div className="bg-white rounded-2xl max-w-sm w-full max-h-[90vh] overflow-hidden">
+            {/* Controles de impressão - não aparecem na impressão */}
+            <div className="p-4 border-b border-gray-200 print:hidden">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Impressão Térmica - Comprovante
+                </h2>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => window.print()}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                    title="Imprimir usando as configurações definidas"
+                  >
+                    Imprimir
+                  </button>
+                  <button
+                    onClick={() => setShowPrintPreview(false)}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+                  >
+                    Fechar
+                  </button>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600">
+                <p>• Configure a impressora para "Térmico Direto"</p>
+                <p>• Largura do papel: 80mm (79,5mm ± 0,5mm)</p>
+                <p>• Use papel térmico de qualidade</p>
+              </div>
             </div>
-            
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 max-h-96 overflow-y-auto font-mono text-sm">
-              <div className="text-center mb-4">
-                <p className="font-bold">ELITE AÇAÍ</p>
-                <p>CNPJ: {storeSettings?.cnpj || '00.000.000/0001-00'}</p>
-                <p>Rua das Frutas, 123 - Centro</p>
-                <p>Tel: (85) 98904-1010</p>
-                <p>--------------------------</p>
-                <p>CUPOM NÃO FISCAL</p>
-                <p>--------------------------</p>
-              </div>
-              
-              <div className="mb-4">
-                <p>Data: {new Date().toLocaleDateString()}</p>
-                <p>Hora: {new Date().toLocaleTimeString()}</p>
-                {customerName && <p>Cliente: {customerName}</p>}
-                {customerPhone && <p>Telefone: {customerPhone}</p>}
-                <p>--------------------------</p>
-              </div>
-              
-              <div className="mb-4">
-                <p className="font-bold">ITENS</p>
-                {items.map((item, index) => (
-                  <div key={index} className="mb-2">
-                    <p>{item.product.name}</p>
-                    {item.product.is_weighable ? (
-                      <p>{(item.weight || 0) * 1000}g x {formatPrice((item.product.price_per_gram || 0) * 1000)}/kg = {formatPrice(item.subtotal)}</p>
-                    ) : (
-                      <p>{item.quantity} x {formatPrice(item.product.unit_price || 0)} = {formatPrice(item.subtotal)}</p>
-                    )}
-                    {item.discount > 0 && <p>Desconto: -{formatPrice(item.discount)}</p>}
+
+            {/* Conteúdo para impressão térmica */}
+            <div className="thermal-receipt overflow-y-auto max-h-[calc(90vh-120px)] print:overflow-visible print:max-h-none">
+              <div className="p-2 print:p-0 no-break">
+                {/* Cabeçalho */}
+                <div className="text-center mb-2 pb-1 border-b border-dashed border-gray-400 no-break">
+                  <div className="mb-1">
+                    <h1 className="text-lg font-bold">ELITE AÇAÍ</h1>
+                    <p className="text-xs">CNPJ: {settings?.cnpj || '00.000.000/0001-00'}</p>
                   </div>
-                ))}
-                <p>--------------------------</p>
-              </div>
-              
-              <div className="mb-4">
-                <p>Subtotal: {formatPrice(getSubtotal())}</p>
-                {getDiscountAmount() > 0 && <p>Desconto: -{formatPrice(getDiscountAmount())}</p>}
-                <p className="font-bold">TOTAL: {formatPrice(getTotal())}</p>
-                <p>--------------------------</p>
-              </div>
-              
-              <div className="mb-4">
-                {paymentType === 'dinheiro' && receivedAmount > 0 && (
-                  <>
-                    <p>Valor Recebido: {formatPrice(receivedAmount)}</p>
-                    <p>Troco: {formatPrice(getChangeAmount())}</p>
-                  </>
-                )}
-                <p>--------------------------</p>
-              </div>
-              
-              <div className="text-center">
-                <p>Obrigado pela preferência!</p>
-                <p>Volte sempre!</p>
+                  
+                  <div className="text-xs space-y-0">
+                    <p>Rua Dois, 2130-A</p>
+                    <p>Residencial 1 - Cágado</p>
+                    <p>Tel: (85) 98904-1010</p>
+                    <p>--------------------------</p>
+                    <p>CUPOM NÃO FISCAL</p>
+                    <p>--------------------------</p>
+                  </div>
+                </div>
+                
+                {/* Informações da Venda */}
+                <div className="mb-2 text-xs no-break">
+                  <div className="space-y-0">
+                    <div className="flex justify-between">
+                      <span>Data:</span>
+                      <span>{new Date().toLocaleDateString('pt-BR')}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Hora:</span>
+                      <span>{new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    {customerName && (
+                      <div>
+                        <span>Cliente:</span>
+                        <div>{customerName}</div>
+                      </div>
+                    )}
+                    {customerPhone && (
+                      <div>
+                        <span>Telefone:</span>
+                        <div>{customerPhone}</div>
+                      </div>
+                    )}
+                    <p>--------------------------</p>
+                  </div>
+                </div>
+                
+                {/* Itens */}
+                <div className="mb-2 no-break">
+                  <p className="font-bold text-xs mb-1">ITENS</p>
+                  {items.map((item, index) => (
+                    <div key={index} className="mb-1 text-xs">
+                      <div className="font-medium">{item.product.name}</div>
+                      {item.product.is_weighable ? (
+                        <div className="flex justify-between">
+                          <span>{(item.weight || 0) * 1000}g x {formatPrice((item.product.price_per_gram || 0) * 1000)}/kg</span>
+                          <span>{formatPrice(item.subtotal)}</span>
+                        </div>
+                      ) : (
+                        <div className="flex justify-between">
+                          <span>{item.quantity} x {formatPrice(item.product.unit_price || 0)}</span>
+                          <span>{formatPrice(item.subtotal)}</span>
+                        </div>
+                      )}
+                      {item.discount > 0 && (
+                        <div className="flex justify-between text-red-600">
+                          <span>Desconto:</span>
+                          <span>-{formatPrice(item.discount)}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  <p>--------------------------</p>
+                </div>
+                
+                {/* Totais */}
+                <div className="mb-2 text-xs no-break">
+                  <div className="space-y-0">
+                    <div className="flex justify-between">
+                      <span>Subtotal:</span>
+                      <span>{formatPrice(getSubtotal())}</span>
+                    </div>
+                    {getDiscountAmount() > 0 && (
+                      <div className="flex justify-between text-red-600">
+                        <span>Desconto:</span>
+                        <span>-{formatPrice(getDiscountAmount())}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between font-bold text-lg pt-1 border-t border-gray-300">
+                      <span>TOTAL:</span>
+                      <span>{formatPrice(getTotal())}</span>
+                    </div>
+                    <p>--------------------------</p>
+                  </div>
+                </div>
+                
+                {/* Pagamento */}
+                <div className="mb-2 text-xs no-break">
+                  <div className="font-bold mb-1">PAGAMENTO:</div>
+                  <div>{paymentTypes.find(t => t.id === paymentType)?.label || paymentType}</div>
+                  {paymentType === 'dinheiro' && receivedAmount > 0 && (
+                    <div className="space-y-0">
+                      <div className="flex justify-between">
+                        <span>Valor Recebido:</span>
+                        <span>{formatPrice(receivedAmount)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Troco:</span>
+                        <span>{formatPrice(getChangeAmount())}</span>
+                      </div>
+                    </div>
+                  )}
+                  {paymentType === 'pix' && (
+                    <div className="mt-1 p-1 bg-blue-50 border border-blue-200 rounded text-xs">
+                      <div className="font-bold">DADOS PIX:</div>
+                      <div>Chave: 85989041010</div>
+                      <div>Nome: Grupo Elite</div>
+                      <div>Valor: {formatPrice(getTotal())}</div>
+                    </div>
+                  )}
+                  <p>--------------------------</p>
+                </div>
+                
+                {/* Rodapé */}
+                <div className="text-center text-xs no-break">
+                  <div className="mb-1">
+                    <div className="font-bold">Obrigado pela preferência!</div>
+                    <div>Volte sempre!</div>
+                  </div>
+                  
+                  <div className="space-y-0">
+                    <div>@eliteacai</div>
+                    <div>⭐⭐⭐⭐⭐ Avalie-nos!</div>
+                  </div>
+
+                  <div className="mt-1 pt-1 border-t border-gray-300 text-xs">
+                    <div>Elite Açaí - CNPJ: {settings?.cnpj || '00.000.000/0001-00'}</div>
+                    <div>Impresso: {new Date().toLocaleString('pt-BR')}</div>
+                    <div>Este não é um documento fiscal</div>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
+          
+          {/* Estilos específicos para impressão térmica */}
+          <style jsx>{`
+            @media print {
+              @page {
+                size: 80mm auto;
+                margin: 0;
+                padding: 0;
+              }
+              
+              body {
+                margin: 0;
+                padding: 0;
+                background: white;
+                font-family: 'Courier New', monospace;
+                font-size: 1.6px;
+                line-height: 1.1;
+                color: black;
+                overflow: visible;
+              }
+              
+              .print\\:hidden {
+                display: none !important;
+              }
+              
+              .thermal-receipt {
+                width: 75mm;
+                max-width: 75mm;
+                margin: 0;
+                padding: 0.5mm;
+                background: white;
+                color: black;
+                font-family: 'Courier New', monospace;
+                font-size: 1.6px;
+                line-height: 1.1;
+                overflow: visible;
+                max-height: none;
+                transform: scale(0.9);
+                transform-origin: top left;
+                page-break-inside: avoid;
+              }
+              
+              .fixed {
+                position: static !important;
+              }
+              
+              .bg-black\\/50 {
+                background: transparent !important;
+              }
+              
+              .rounded-2xl {
+                border-radius: 0 !important;
+              }
+              
+              .max-w-sm {
+                max-width: none !important;
+              }
+              
+              .w-full {
+                width: 75mm !important;
+              }
+              
+              .max-h-\\[90vh\\] {
+                max-height: none !important;
+              }
+              
+              .overflow-hidden {
+                overflow: visible !important;
+              }
+              
+              /* Força cores para impressão térmica */
+              * {
+                color: black !important;
+                background: white !important;
+                border-color: black !important;
+              }
+              
+              .bg-gray-100 {
+                background: #f0f0f0 !important;
+              }
+              
+              .bg-blue-50 {
+                background: #f0f8ff !important;
+              }
+              
+              .border-dashed {
+                border-style: dashed !important;
+              }
+              
+              .border-dotted {
+                border-style: dotted !important;
+              }
+              
+              /* Quebras de página */
+              .page-break {
+                page-break-before: always;
+              }
+              
+              .no-break {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+              }
+              
+              /* Otimizações para impressão térmica */
+              .thermal-receipt h1 {
+                font-size: 6px !important;
+                font-weight: bold !important;
+                margin: 0 !important;
+              }
+              
+              .thermal-receipt .text-xs {
+                font-size: 4.8px !important;
+              }
+              
+              .thermal-receipt .text-lg {
+                font-size: 6.4px !important;
+              }
+              
+              .thermal-receipt .font-bold {
+                font-weight: bold !important;
+              }
+              
+              .thermal-receipt .font-medium {
+                font-weight: 600 !important;
+              }
+              
+              /* Espaçamento otimizado */
+              .thermal-receipt .mb-1 {
+                margin-bottom: 0.5mm !important;
+              }
+              
+              .thermal-receipt .mb-2 {
+                margin-bottom: 1mm !important;
+              }
+              
+              .thermal-receipt .pb-1 {
+                padding-bottom: 0.5mm !important;
+              }
+              
+              .thermal-receipt .pt-1 {
+                padding-top: 0.5mm !important;
+              }
+              
+              .thermal-receipt .p-1 {
+                padding: 0.5mm !important;
+              }
+              
+              .thermal-receipt .p-2 {
+                padding: 1mm !important;
+              }
+              
+              /* Bordas para impressão térmica */
+              .thermal-receipt .border-b {
+                border-bottom: 1px solid black !important;
+              }
+              
+              .thermal-receipt .border-t {
+                border-top: 1px solid black !important;
+              }
+              
+              .thermal-receipt .border-dashed {
+                border-style: dashed !important;
+              }
+              
+              .thermal-receipt .border-dotted {
+                border-style: dotted !important;
+              }
+              
+              /* Flexbox para alinhamento */
+              .thermal-receipt .flex {
+                display: flex !important;
+              }
+              
+              .thermal-receipt .justify-between {
+                justify-content: space-between !important;
+              }
+              
+              .thermal-receipt .text-center {
+                text-align: center !important;
+              }
+              
+              .thermal-receipt .break-all {
+                word-break: break-all !important;
+              }
+              
+              /* Evitar quebras de página */
+              .thermal-receipt * {
+                page-break-inside: avoid !important;
+              }
+              
+              /* Compactar espaçamentos */
+              .thermal-receipt .space-y-0 > * + * {
+                margin-top: 0 !important;
+              }
+              
+              .thermal-receipt .space-y-1 > * + * {
+                margin-top: 0.5mm !important;
+              }
+            }
             
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowPrintPreview(false)}
-                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-medium transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => {
-                  window.print();
-                  setShowPrintPreview(false);
-                }}
-                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-              >
-                <Printer size={16} />
-                Imprimir
-              </button>
-            </div>
+            /* Estilos para visualização na tela */
+            .thermal-receipt {
+              font-family: 'Courier New', monospace;
+              max-width: 280px;
+              background: white;
+              border: 1px solid #ddd;
+            }
+          `}</style>
+        </div>
+      )}
           </div>
         </div>
       )}
