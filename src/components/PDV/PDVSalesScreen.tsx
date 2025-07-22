@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus, Trash2, ShoppingCart, Calculator, Printer, X, User, Phone } from 'lucide-react';
-import { usePDV } from '../../hooks/usePDV';
+import { usePDVProducts } from '../../hooks/usePDV';
 import { usePDVSales } from '../../hooks/usePDVSales';
 import { formatPrice } from '../../utils/formatters';
 import { PDVProduct, PDVSaleItem, PDVPaymentType } from '../../types/pdv';
@@ -11,7 +11,7 @@ interface PDVSalesScreenProps {
 }
 
 export default function PDVSalesScreen({ onBack }: PDVSalesScreenProps) {
-  const { products, loading: productsLoading } = usePDV();
+  const { products, loading: productsLoading } = usePDVProducts();
   const { createSale, loading: saleLoading } = usePDVSales();
   
   const [items, setItems] = useState<PDVSaleItem[]>([]);
